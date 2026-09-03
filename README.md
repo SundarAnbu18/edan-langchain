@@ -25,3 +25,13 @@ Temperature will contain how creative or randomness.
 Temperature can range from 0 to 1 (in some cases it can go to 1.5).
 
 When it is 0 it would be less creative and randomness — it will get to the point.
+
+## Runnable chain
+
+Runnable chain is nothing but taking the input of left component → right component.
+
+Resulting chain is called runnable object.
+
+## LangSmith
+
+LangSmith is used for monitoring the logs for an application.

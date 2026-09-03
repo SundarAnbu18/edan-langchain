@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 from langchain_core.prompts import ChatPromptTemplate, prompt
 from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 
 load_dotenv()
 
@@ -27,7 +28,8 @@ Musk is a supporter of global far-right politics, figures, and political parties
 
     summary_prompt_template = ChatPromptTemplate.from_template("what year he born : {information}")
     summary_prompt_value = summary_prompt_template.format_prompt(information=information)
-    model = ChatOpenAI(model="gpt-4o-mini", temperature=1)
+    # model = ChatOpenAI(model="gpt-4o-mini", temperature=1)
+    model = ChatOllama(model="llama3.2:3b")
     response = model.invoke(summary_prompt_value)
     print(response.content)
 
