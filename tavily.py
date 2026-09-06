@@ -13,8 +13,6 @@ from langchain_tavily import TavilySearch
 
 from langchain_openai import ChatOpenAI
 
-from python_tavily import tavily
-
 @tool
 def search(query:str) -> str:
     """
@@ -28,7 +26,7 @@ def search(query:str) -> str:
     """
     print(query)
     # print(TavilySearch(max_results=3, include_answer=True).invoke({"query": query}),'test')
-    return tavily.search(query)
+    return TavilySearch(max_results=3, include_answer=True).invoke({"query": query})['results']
 
 
 @tool
@@ -53,7 +51,7 @@ agent = create_agent(model=llm, tools=tools)
 
 def main():
     print("Starting the agent")
-    result = agent.invoke({"messages":(HumanMessage(content="i want to search for a 3 job posting in langchain in bangalore"))},
+    result = agent.invoke({"messages":(HumanMessage(content="Find a job in the linkedin for a senior software engineer in bangalore"))},
     config={
         "recursion_limit":10
     },

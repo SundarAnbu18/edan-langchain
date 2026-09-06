@@ -63,6 +63,8 @@ LangChain version: `1.3.18`
 
 Tavily is a good example for integrating web search with the agent.
 
+`TavilySearch` should take `max_results` and `include_answer`.
+
 ## Tool
 
 A tool is a function that the agent can execute.
@@ -81,4 +83,18 @@ Below is the structure for how an agent will be called:
 
 ```
 Human Message --> AI Message (decide the tool) --> Tool Message --> AI Message
-``` 
+```
+
+## Search tool flow
+
+Example: user asks “Find a job on LinkedIn for a senior software engineer in Bangalore.”
+
+```
+User
+  --> Model formats the tool query
+      (senior software engineer jobs in Bangalore site:linkedin.com)
+  --> LLM decides the tool and calls it
+  --> Tool processes it
+  --> LLM
+  --> LLM structures and returns the answer
+```
