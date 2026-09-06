@@ -35,3 +35,50 @@ Resulting chain is called runnable object.
 ## LangSmith
 
 LangSmith is used for monitoring the logs for an application.
+
+## Pipe operator
+
+The pipe operator `|` represents connecting components in the pipeline.
+
+## LCEL syntax
+
+LCEL (LangChain Expression Language) is the `|` pipe syntax used to connect runnables.
+
+Advantages:
+
+- Easy to connect components: `prompt | model | parser`
+- Output of the left component becomes input of the right component
+- Streaming, batch, and async work on the whole chain without extra code
+- Easy to add retries, fallbacks, and LangSmith tracing
+- The resulting chain is a runnable object, so you can `.invoke()` it like a single step
+
+## LangChain vs AI agents
+
+LangChain version: `1.3.18`
+
+- **LangChain:** we decide each step and what needs to happen next
+- **AI agents:** the LLM decides the next step
+
+## LangChain Tavily
+
+Tavily is a good example for integrating web search with the agent.
+
+## Tool
+
+A tool is a function that the agent can execute.
+
+While implementing tools we should use `@tool` from `langchain.tools`.
+
+`@tool` is a decorator we add before a function to define the tool.
+
+## create_agent
+
+`create_agent` from `langchain.agents` takes `tools`, `model`, and `system` as parameters.
+
+## Agent call flow
+
+Below is the structure for how an agent will be called:
+
+```
+Human Message --> AI Message (decide the tool) --> Tool Message --> AI Message
+``` 
