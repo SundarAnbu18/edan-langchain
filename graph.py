@@ -8,12 +8,16 @@ from langchain_openai import ChatOpenAI
 from langchain_tavily import TavilySearch
 from langgraph.graph import START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
+from pydantic import BaseModel
 
 tavily_search = TavilySearch(max_results=3, include_answer=True)
 
 
+class SearchState(BaseModel):
+    query: str
+
 @tool
-def search(query: str) -> str:
+def search(SearchState: SearchState) -> str:
     """
     Tool that search over internet
 
@@ -23,12 +27,15 @@ def search(query: str) -> str:
     Returns:
         The search results
     """
-    print(query)
-    return tavily_search.invoke({"query": query})
+    print(SearchState.query)
+    return tavily_search.invoke({"query": SearchState.query})
 
+class GetWeatherState(BaseModel):
+    city: str
+    why_called_getweather: str
 
 @tool
-def get_weather(city: str, why_called_getweather: str) -> str:
+def get_weather(GetWeatherState: GetWeatherState) -> str:   
     """
     Tool that gets the weather for a city
 
@@ -39,8 +46,8 @@ def get_weather(city: str, why_called_getweather: str) -> str:
     Returns:
         The weather for the city
     """
-    print(city, why_called_getweather)
-    return f"The weather in {city} is sunny"
+    print(GetWeatherState.city, GetWeatherState.why_called_getweather)
+    return f"The weather in {GetWeatherState.city} is sunny"
 
 
 llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
@@ -60,19 +67,14 @@ graph_builder.add_conditional_edges("chatbot", tools_condition)
 graph_builder.add_edge("tools", "chatbot")
 graph = graph_builder.compile()
 
+png = graph.get_graph().draw_mermaid_png()
+with open("graph.png", "wb") as f:
+    f.write(png)
+
 
 def main():
     print("Starting the graph")
-    result = graph.invoke(
-        {
-            "messages": [
-                HumanMessage(
-                    content="i want to search for a 3 job posting in langchain in bangalore"
-                )
-            ]
-        },
-        config={"recursion_limit": 10},
-    )
+    result = graph.invoke({"messages": [HumanMessage(content="i want to search for a 3 job posting in langchain in bangalore")]})
     print("Result:")
     print(result["messages"][-1].content)
 

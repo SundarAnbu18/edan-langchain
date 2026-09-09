@@ -98,3 +98,137 @@ User
   --> LLM
   --> LLM structures and returns the answer
 ```
+
+## RAG
+
+LLM will be trained with billions of docs and data which is available publicly. To make it accessible to your personal data is where we need RAG.
+
+RAG will contain the context of the content.
+
+## Embedding
+
+```
+Text --> Embedding Model --> Vector (numerical output)
+```
+
+| Text | Vector representation |
+| --- | --- |
+| I love ice creams | `[0.12, -0.45, 0.78, 0.33, 0.56]` |
+| I like to have ice creams | `[0.16, -0.49, 0.81, 0.41, 0.78]` |
+| sun is very hard | `[-0.60, -0.100, 0.181, 0.141, 0.178]` |
+
+Sentences with similar context will be next to each other. If they are not the same context, they will not.
+
+## RAG index flow
+
+```
+                    ┌──────────────────────┐
+                    │      RAW DATA        │
+                    │                      │
+                    │ "Sundar full name    │
+                    │  is sundar anbu"     │
+                    │                      │
+                    │ "Sundar is a good    │
+                    │  person"             │
+                    │                      │
+                    │ "sun is heat place"  │
+                    └──────────┬───────────┘
+                               │
+                               │ 1. Read raw data
+                               ▼
+                    ┌──────────────────────┐
+                    │   Text / Documents   │
+                    └──────────┬───────────┘
+                               │
+                               │ 2. Send each text
+                               │    to embedding model
+                               ▼
+                 ┌────────────────────────────┐
+                 │     OpenAI Embeddings      │
+                 │                            │
+                 │ text-embedding-3-small     │
+                 └──────────────┬─────────────┘
+                                │
+                                │ 3. Convert text
+                                │    → vectors
+                                ▼
+       ┌──────────────────────────────────────────────┐
+       │                    VECTORS                    │
+       │                                               │
+       │ Text 1 → [0.12, -0.34, 0.76, ...]            │
+       │ Text 2 → [0.21, -0.11, 0.52, ...]            │
+       │ Text 3 → [0.89,  0.43, 0.12, ...]            │
+       └──────────────────────┬───────────────────────┘
+                              │
+                              │ 4. Store/index vectors
+                              ▼
+                    ┌──────────────────────┐
+                    │        FAISS         │
+                    │                      │
+                    │  Vector Index        │
+                    │                      │
+                    │  Vector 1 ──┐        │
+                    │  Vector 2 ──┼─ Index │
+                    │  Vector 3 ──┘        │
+                    └──────────┬───────────┘
+                               │
+                     ┌─────────┴─────────┐
+                     │   SAVE TO DISK    │
+                     │   index.faiss     │
+                     └───────────────────┘
+```
+
+## RAG query flow
+
+```
+                     User
+                     │
+                     │ "What is sun?"
+                     ▼
+          ┌──────────────────────┐
+          │   User Question      │
+          └──────────┬───────────┘
+                     │
+                     │ 1. Convert question
+                     │    into embedding
+                     ▼
+       ┌────────────────────────────┐
+       │    OpenAI Embeddings       │
+       │                            │
+       │ text-embedding-3-small     │
+       └──────────────┬─────────────┘
+                      │
+                      │ 2. Question → vector
+                      ▼
+          ┌──────────────────────┐
+          │   Query Vector       │
+          │                      │
+          │ [0.87, 0.42, ...]    │
+          └──────────┬───────────┘
+                     │
+                     │ 3. Send vector
+                     │    to FAISS
+                     ▼
+            ┌─────────────────┐
+            │      FAISS      │
+            │                 │
+            │ Search index    │
+            │                 │
+            │ Find closest    │
+            │ vectors         │
+            └────────┬────────┘
+                     │
+                     │ 4. Similarity search
+                     ▼
+            ┌─────────────────┐
+            │ Top K results   │
+            │                 │
+            │ "sun is heat    │
+            │  place"         │
+            │                 │
+            │ ...             │
+            └────────┬────────┘
+                     │
+                     ▼
+                User / LLM
+```
