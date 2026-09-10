@@ -8,6 +8,7 @@ texts = [
     "Sundar full name is sundar anbu",
     "Sundar is a good person",
     "sun is heat place",
+    "president of india is ram nath kovind",
 ]
 
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
@@ -15,6 +16,6 @@ embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 index = FAISS.from_texts(texts, embeddings)
 index.save_local("index.faiss")
 
-results = index.similarity_search("what is sun?", k=2)
+results = index.similarity_search("president of india ?", k=2)
 for doc in results:
     print(doc.page_content)
