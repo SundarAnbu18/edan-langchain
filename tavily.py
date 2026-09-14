@@ -11,7 +11,26 @@ from langchain_ollama import ChatOllama
 
 from langchain_tavily import TavilySearch
 
+from typing import List
+
+from pydantic import BaseModel,Field
+
 from langchain_openai import ChatOpenAI
+
+import json
+
+
+class Source(BaseModel):
+    """Schema for a source used by the agent"""
+
+    url:str = Field(description="The url of the source")
+
+
+class AgentResponse(BaseModel):
+    """Schema for the response from the agent"""
+
+    answer:str = Field(description="The answer to the question")
+    sources:List[Source] = Field(description="The sources used to answer the question")
 
 @tool
 def search(query:str) -> str:
@@ -26,7 +45,9 @@ def search(query:str) -> str:
     """
     print(query)
     # print(TavilySearch(max_results=3, include_answer=True).invoke({"query": query}),'test')
-    return TavilySearch(max_results=3, include_answer=True).invoke({"query": query})['results']
+    return json.dumps(
+    TavilySearch(max_results=3, include_answer=True).invoke({"query": query})["results"]
+)
 
 
 @tool
@@ -47,17 +68,18 @@ def get_weather(city:str,why_called_getweather:str) -> str:
 
 llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 tools = [search, get_weather]
-agent = create_agent(model=llm, tools=tools)
+agent = create_agent(model=llm, tools=tools, response_format=AgentResponse)
 
 def main():
     print("Starting the agent")
-    result = agent.invoke({"messages":(HumanMessage(content="Find a job in the linkedin for a senior software engineer in bangalore"))},
+    result = agent.invoke({"messages":(HumanMessage(content="AI Engineer  job in linkedin bangalore"))},
     config={
         "recursion_limit":10
     },
     )
     print("Result:")
-    print(result)
+    print(result["structured_response"].answer)
+    print(result["structured_response"].sources)
 
 main()
 

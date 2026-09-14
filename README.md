@@ -232,3 +232,6 @@ Sentences with similar context will be next to each other. If they are not the s
                      ▼
                 User / LLM
 ```
+
+
+Pydantic's BaseModel will help us to structure the agent response 
